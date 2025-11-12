@@ -10,7 +10,7 @@ void main() {
 
 Future<void> getPlantInfo() async {
     var headers = {
-    'Api-Key': 'ke6I00uIeq04fIa4iBNbc7Wqru3haa9jCMJeNtZpk7GD1Wm02t',
+    'Api-Key': 'MyKeyHere',
     'Content-Type': 'application/json'
   };
   var request = http.Request('POST', Uri.parse('https://plant.id/api/v3/identification'));
