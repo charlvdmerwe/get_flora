@@ -23,39 +23,6 @@ class Plant {
 
 Plant plant = Plant("", ""); //global plant object
 
-Future<void> getPlantInfo() async {
-    var headers = {
-    'Api-Key': 'ke6I00uIeq04fIa4iBNbc7Wqru3haa9jCMJeNtZpk7GD1Wm02t',
-    'Content-Type': 'application/json'
-  };
-  var request = http.Request('POST', Uri.parse('https://plant.id/api/v3/identification'));
-  request.body = json.encode({
-    "images": [
-      "data:image/jpg;base64,${plant.b64Code}"
-    ],
-    "latitude": 49.207,
-    "longitude": 16.608,
-    "similar_images": true
-  });
-  request.headers.addAll(headers);
-
-  http.StreamedResponse response = await request.send();
-
-  if (response.statusCode == 201 || response.statusCode == 200) {
-    var message = await response.stream.bytesToString();
-    var jsonResponse = json.decode(message);
-
-    plant.scientificName = jsonResponse['result']['classification']['suggestions'][0]['name'];
-    
-  }
-  else {
-    print(response.reasonPhrase);
-  }
-
-  print(response);
-
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -98,10 +65,7 @@ class MyAppState extends ChangeNotifier {
   } 
   Future<void> pickImage(ImageSource source) async {
     try {
-
-      // Read bytes from the file object
       
-
       // base64 encode the bytes
       final picker = ImagePicker();
       final XFile? file = await picker.pickImage(
@@ -124,6 +88,40 @@ class MyAppState extends ChangeNotifier {
       print('pickImage error: $e');
     }
   }
+
+  Future<void> getPlantInfo() async {
+    var headers = {
+    'Api-Key': 'ke6I00uIeq04fIa4iBNbc7Wqru3haa9jCMJeNtZpk7GD1Wm02t',
+    'Content-Type': 'application/json'
+  };
+  var request = http.Request('POST', Uri.parse('https://plant.id/api/v3/identification'));
+  request.body = json.encode({
+    "images": [
+      "data:image/jpg;base64,${plant.b64Code}"
+    ],
+    "latitude": 49.207,
+    "longitude": 16.608,
+    "similar_images": true
+  });
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 201 || response.statusCode == 200) {
+    var message = await response.stream.bytesToString();
+    var jsonResponse = json.decode(message);
+
+    plant.scientificName = jsonResponse['result']['classification']['suggestions'][0]['name'];
+    notifyListeners();
+  }
+  else {
+    print(response.reasonPhrase);
+  }
+
+  print(response);
+
+  }
+
 }
 
 
@@ -180,7 +178,10 @@ class MyHomePage extends StatelessWidget {
                   btnCapture(),
                 ],
               ),
-              const SizedBox(height: 250),
+
+              txtPlantname(),
+
+              const SizedBox(height: 200),
               Padding(
                 padding: const EdgeInsets.fromLTRB(250, 0, 0, 0),
                 child: btnLightDark(),
@@ -190,6 +191,22 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class txtPlantname extends StatelessWidget {
+  const txtPlantname({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      plant.scientificName != null
+        ? 'Scientific Name: ${plant.scientificName}'
+        : 'Scientific Name: N/A',
+      style: const TextStyle(fontSize: 20),
     );
   }
 }
@@ -205,7 +222,7 @@ class btnGetInfo extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
           onPressed: () {
-            getPlantInfo();
+            context.read<MyAppState>().getPlantInfo();
             print(plant.scientificName);
           },
           child: const Text('Get Info'),
