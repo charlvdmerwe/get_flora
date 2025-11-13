@@ -1,8 +1,11 @@
-import 'package:english_words/english_words.dart';
+// ...existing code...
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+// ...existing code...
 
 void main() {
   runApp(MyApp());
@@ -45,28 +48,84 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 83, 115, 58)),
-        ),
-        home: MyHomePage(),
+      child: Consumer<MyAppState>(
+        builder: (context, appState, _) {
+          return MaterialApp(
+            title: 'GetFlora',
+            theme: appState.darkMode 
+            ? ThemeData(
+                brightness: Brightness.dark,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color.fromARGB(255, 20, 40, 10),
+                  brightness: Brightness.dark
+                ),
+            ) : ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color.fromARGB(255, 20, 40, 10),
+                  brightness: Brightness.light
+            ),
+          ),
+          home: MyHomePage(),        
+          );
+        }
       ),
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
+  bool darkMode = true;
+  String? selectedImagePath;
+
+  void toggleDarkMode() {
+    darkMode = !darkMode;
+    notifyListeners();
+  } 
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final XFile? file = await picker.pickImage(
+        source: source,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 85,
+      );
+      if (file != null) {
+        selectedImagePath = file.path;
+        notifyListeners();
+      }
+    } catch (e) {
+      // simple error logging
+      print('pickImage error: $e');
+    }
+  }
 }
 
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    // var appState = context.watch<MyAppState>();
-    // var pair = appState.current;
-    var plantPic = 'https://just-rooibos.com/wp-content/uploads/2019/04/rooibos-flower.jpg';
+    var appState = context.watch<MyAppState>();
+    var defaultRemote = 'https://just-rooibos.com/wp-content/uploads/2019/04/rooibos-flower.jpg';
+    String? plantPic = appState.selectedImagePath ?? defaultRemote;
+
+    Widget imageWidget;
+    if (appState.selectedImagePath != null) {
+      imageWidget = Image.file(
+        File(plantPic),
+        height: 200,
+        width: 300,
+        fit: BoxFit.cover,
+      );
+    } else {
+      imageWidget = Image.network(
+        plantPic,
+        height: 200,
+        width: 300,
+        fit: BoxFit.cover,
+      );
+    }
 
     return Scaffold(
       body: Center(
@@ -75,7 +134,7 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             // mainAxisSize: MainAxisSize.min,
             children: [
-              
+
               const SizedBox(height: 32),
 
               Image.network(  
@@ -84,20 +143,24 @@ class MyHomePage extends StatelessWidget {
                 width: 300,
               ),  
 
-              Image.network(  
-                plantPic,
-                height: 300,
-                width: 300,
+              Card(
+                child: imageWidget,
               ),
 
               const SizedBox(height: 16),
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children:  [
+                  const btnGetInfo(),
                   btnCapture(),
-                  btnGetInfo(),
                 ],
               ),
+              const SizedBox(height: 250),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(250, 0, 0, 0),
+                child: btnLightDark(),
+              ),
+
             ],
           ),
         ),
@@ -118,16 +181,15 @@ class btnGetInfo extends StatelessWidget {
       child: ElevatedButton(
           onPressed: () {
             print('button pressed!');
-            // getPlantInfo();
           },
-          child: Text('Get Info'),
+          child: const Text('Get Info'),
         ),
     );
   }
 }
 
-class btnCapture extends StatelessWidget {
-  const btnCapture({
+class btnLightDark extends StatelessWidget {
+  const btnLightDark({
     super.key,
   });
 
@@ -138,9 +200,65 @@ class btnCapture extends StatelessWidget {
       child: ElevatedButton(
           onPressed: () {
             print('button pressed!');
-            // getPlantInfo();
+            context.read<MyAppState>().toggleDarkMode();
           },
-          child: Text('Capture'),
+          child: context.watch<MyAppState>().darkMode
+            ? const Text('☀')
+            : const Text('🌙'),
+        ),
+    );
+  }
+}
+
+class btnCapture extends StatelessWidget {
+  const btnCapture({
+    super.key,
+  });
+
+  Future<void> _showPickOptions(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  context.read<MyAppState>().pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  context.read<MyAppState>().pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: const Text('Cancel'),
+                onTap: () => Navigator.of(ctx).pop(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+          onPressed: () {
+            _showPickOptions(context);
+          },
+          child: const Text('Capture'),
         ),
     );
   }
@@ -167,3 +285,4 @@ class Title extends StatelessWidget {
     );
   }
 }
+// ...existing code...
