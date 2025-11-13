@@ -12,15 +12,26 @@ void main() {
   runApp(MyApp());
 }
 
+class Plant {
+  String? b64Code;
+  String? scientificName;
+
+  Plant(
+    this.b64Code,
+    this.scientificName);
+}
+
+Plant plant = Plant("", ""); //global plant object
+
 Future<void> getPlantInfo() async {
     var headers = {
-    'Api-Key': 'MyKeyHere',
+    'Api-Key': 'ke6I00uIeq04fIa4iBNbc7Wqru3haa9jCMJeNtZpk7GD1Wm02t',
     'Content-Type': 'application/json'
   };
   var request = http.Request('POST', Uri.parse('https://plant.id/api/v3/identification'));
   request.body = json.encode({
     "images": [
-      "https://plant.id/static/oak.jpg"
+      "data:image/jpg;base64,${plant.b64Code}"
     ],
     "latitude": 49.207,
     "longitude": 16.608,
@@ -31,8 +42,11 @@ Future<void> getPlantInfo() async {
   http.StreamedResponse response = await request.send();
 
   if (response.statusCode == 201 || response.statusCode == 200) {
-    // var message = response.stream.bytesToString();
-    print(await response.stream.bytesToString());
+    var message = await response.stream.bytesToString();
+    var jsonResponse = json.decode(message);
+
+    plant.scientificName = jsonResponse['result']['classification']['suggestions'][0]['name'];
+    
   }
   else {
     print(response.reasonPhrase);
@@ -102,6 +116,7 @@ class MyAppState extends ChangeNotifier {
       }
       Uint8List bytes = await file.readAsBytes();
       String base64String = base64.encode(bytes);
+      plant.b64Code = base64String;
       selectedImagePath = file.path;
       notifyListeners();
     } catch (e) {
@@ -190,7 +205,8 @@ class btnGetInfo extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
           onPressed: () {
-            print('button pressed!');
+            getPlantInfo();
+            print(plant.scientificName);
           },
           child: const Text('Get Info'),
         ),
