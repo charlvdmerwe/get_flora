@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 // ...existing code...
@@ -81,9 +82,13 @@ class MyAppState extends ChangeNotifier {
     darkMode = !darkMode;
     notifyListeners();
   } 
-
   Future<void> pickImage(ImageSource source) async {
     try {
+
+      // Read bytes from the file object
+      
+
+      // base64 encode the bytes
       final picker = ImagePicker();
       final XFile? file = await picker.pickImage(
         source: source,
@@ -91,16 +96,21 @@ class MyAppState extends ChangeNotifier {
         maxHeight: 1600,
         imageQuality: 85,
       );
-      if (file != null) {
-        selectedImagePath = file.path;
-        notifyListeners();
+      if (file == null) {
+        // user cancelled
+        return;
       }
+      Uint8List bytes = await file.readAsBytes();
+      String base64String = base64.encode(bytes);
+      selectedImagePath = file.path;
+      notifyListeners();
     } catch (e) {
       // simple error logging
       print('pickImage error: $e');
     }
   }
 }
+
 
 class MyHomePage extends StatelessWidget {
   @override
