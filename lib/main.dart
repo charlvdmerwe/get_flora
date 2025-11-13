@@ -64,8 +64,8 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
+    // var appState = context.watch<MyAppState>();
+    // var pair = appState.current;
     var plantPic = 'https://just-rooibos.com/wp-content/uploads/2019/04/rooibos-flower.jpg';
 
     return Scaffold(
