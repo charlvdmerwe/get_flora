@@ -91,7 +91,7 @@ class MyAppState extends ChangeNotifier {
 
   Future<void> getPlantInfo() async {
     var headers = {
-    'Api-Key': 'ke6I00uIeq04fIa4iBNbc7Wqru3haa9jCMJeNtZpk7GD1Wm02t',
+    'Api-Key': 'MyKey',
     'Content-Type': 'application/json'
   };
   var request = http.Request('POST', Uri.parse('https://plant.id/api/v3/identification'));
@@ -160,11 +160,11 @@ class MyHomePage extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              Image.network(  
-                'https://media.discordapp.net/attachments/1241079742250352715/1438279553280774374/ChatGPT_Image_Nov_12__2025__11_12_53_PM-removebg-preview.png?ex=69164db7&is=6914fc37&hm=81b5d16644d4e5cc34d5f70eb2d6ad338fe0e30de1d0d4238171359ebb9f3b37&=&format=webp&quality=lossless',
+              Image.asset(
+                'assets/images/GetFloraLogo.png',
                 height: 100,
                 width: 300,
-              ),  
+              ),
 
               Card(
                 child: imageWidget,
