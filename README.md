@@ -2,8 +2,6 @@
 
 A cross-platform Flutter app for identifying and retrieving information about plants. Snap or upload a photo of a plant and get back details pulled from a plant-data API.
 
-![Screenshot](https://media.discordapp.net/attachments/1241079742250352715/1438517693903929545/IMG-20251113-WA0002.jpg)
-
 ## Features
 
 - 📷 Capture a plant photo with the device camera, or pick one from your gallery
