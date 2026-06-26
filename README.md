@@ -1,12 +1,70 @@
-# get_flora
+# 🌿 get_flora
 
-A mobile app to retrieve information about plants:
+A cross-platform Flutter app for identifying and retrieving information about plants. Snap or upload a photo of a plant and get back details pulled from a plant-data API.
 
-### API used:
+![Screenshot](https://media.discordapp.net/attachments/1241079742250352715/1438517693903929545/IMG-20251113-WA0002.jpg)
 
-https://documenter.getpostman.com/view/24599534/2s93z5A4v2
+## Features
 
-Screenshot (V1):
+- 📷 Capture a plant photo with the device camera, or pick one from your gallery
+- 🔍 Look up plant information via a REST API
+- 📱 Built with Flutter — runs on Android, iOS, Web, Windows, macOS, and Linux from a single codebase
+- 🗂️ Local image handling and caching via `path_provider`
 
-![alt text](https://media.discordapp.net/attachments/1241079742250352715/1438517693903929545/IMG-20251113-WA0002.jpg?ex=69172b80&is=6915da00&hm=8306983b87c7c9d1e0ef1b64d03dadac38e60020fc08a60eb8b729a6398157cf&=&format=webp&width=498&height=944)
+## Tech Stack
 
+- **Framework:** [Flutter](https://flutter.dev) / Dart
+- **State management:** [provider](https://pub.dev/packages/provider)
+- **Networking:** [http](https://pub.dev/packages/http)
+- **Camera & media:** [camera](https://pub.dev/packages/camera), [image_picker](https://pub.dev/packages/image_picker)
+- **Filesystem:** [path_provider](https://pub.dev/packages/path_provider), [path](https://pub.dev/packages/path)
+
+## API
+
+This app retrieves plant data from a plant-information API, documented here:
+
+👉 [API Documentation (Postman)](https://documenter.getpostman.com/view/24599534/2s93z5A4v2)
+
+## Getting Started
+
+### Prerequisites
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Dart SDK `^3.9.4`)
+- A connected device, simulator/emulator, or a configured desktop/web target
+- Camera permissions enabled on your device/emulator if you want to test photo capture
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/charlvdmerwe/get_flora.git
+   cd get_flora
+   ```
+
+2. Install dependencies
+   ```bash
+   flutter pub get
+   ```
+
+3. Run the app
+   ```bash
+   flutter run
+   ```
+
+   To target a specific platform:
+   ```bash
+   flutter run -d chrome    # Web
+   flutter run -d windows   # Windows
+   flutter run -d macos     # macOS
+   flutter run -d linux     # Linux
+   ```
+
+### Running Tests
+
+```bash
+flutter test
+```
+
+## Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/charlvdmerwe/get_flora/issues) or open a pull request.
